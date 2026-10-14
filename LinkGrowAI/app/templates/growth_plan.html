@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Weekly Growth Plan</h1>
+<form method="post" class="panel">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <p>{{ plan.reason }}</p>
+  <p><strong>Recommended topic:</strong> {{ plan.recommended_topic }}</p>
+  <button class="btn btn-success" type="submit">Save This Plan</button>
+</form>
+<section class="panel mt-4">
+  <h2>Tasks</h2>
+  {% for task in tasks %}
+  <form method="post" action="{{ url_for('agent.toggle_task', task_id=task.id) }}" class="task-row">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-sm {{ 'btn-success' if task.completed else 'btn-outline-secondary' }}" type="submit">{{ "Done" if task.completed else "Mark" }}</button>
+    <span><strong>{{ task.day }}:</strong> {{ task.task }}</span>
+  </form>
+  {% else %}
+  <ul>{% for day, task in plan.tasks %}<li><strong>{{ day }}:</strong> {{ task }}</li>{% endfor %}</ul>
+  {% endfor %}
+</section>
+<section class="panel mt-4">
+  <h2>Generated Draft</h2>
+  <textarea class="form-control" rows="8">{{ plan.post_draft }}</textarea>
+</section>
+<section class="panel mt-4">
+  <h2>Feedback</h2>
+  <form method="post" action="{{ url_for('agent.feedback') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <select class="form-select w-auto d-inline-block" name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select>
+    <input class="form-control my-2" name="comment" placeholder="What was useful or not useful?">
+    <button class="btn btn-primary" type="submit">Save Feedback</button>
+  </form>
+  <p class="text-muted mt-2">{{ plan.feedback_note }}</p>
+</section>
+{% endblock %}

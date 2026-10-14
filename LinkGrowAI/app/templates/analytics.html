@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-head">
+  <div>
+    <p class="eyebrow">LinkedIn Analytics</p>
+    <h1>Performance Studio</h1>
+  </div>
+  <form method="post" action="{{ url_for('analytics.sync_linkedin') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-primary" type="submit">Sync LinkedIn Metrics</button>
+  </form>
+</div>
+
+<section class="glass-panel mb-4">
+  <div class="section-line">
+    <div>
+      <h2>LinkedIn Connection</h2>
+      <p>{{ linkedin_status.message }}</p>
+    </div>
+    <span class="status-pill {{ 'ready' if linkedin_status.ready else 'pending' }}">{{ "Authorized" if linkedin_status.ready else "Setup Needed" }}</span>
+  </div>
+  <p class="subtle">A profile URL identifies the user profile. Impressions, likes, comments, and profile views require LinkedIn OAuth/API permission or a user-authorized export. The app does not scrape LinkedIn.</p>
+</section>
+
+<div class="analytics-grid">
+  <section class="glass-panel manual-entry">
+    <h2>Add Post Metrics</h2>
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="row g-3">
+        <div class="col-md-4"><label class="form-label">Date</label><input class="form-control" name="post_date" type="date" required></div>
+        <div class="col-md-4"><label class="form-label">Topic</label><input class="form-control" name="topic" required></div>
+        <div class="col-md-4"><label class="form-label">Format</label><select class="form-select" name="post_format"><option>Text</option><option>Image</option><option>Video</option><option>Carousel</option><option>Document</option></select></div>
+        <div class="col-md-4"><label class="form-label">LinkedIn Post URL</label><input class="form-control" name="linkedin_post_url" type="url"></div>
+        <div class="col-md-4"><label class="form-label">Impressions</label><input class="form-control" name="impressions" type="number" min="0"></div>
+        <div class="col-md-4"><label class="form-label">Reactions/Likes</label><input class="form-control" name="reactions" type="number" min="0" value="0"></div>
+        <div class="col-md-3"><label class="form-label">Comments</label><input class="form-control" name="comments" type="number" min="0" value="0"></div>
+        <div class="col-md-3"><label class="form-label">Reposts</label><input class="form-control" name="reposts" type="number" min="0" value="0"></div>
+        <div class="col-md-3"><label class="form-label">Profile Views</label><input class="form-control" name="profile_views" type="number" min="0"></div>
+        <div class="col-md-3"><label class="form-label">New Connections</label><input class="form-control" name="new_connections" type="number" min="0"></div>
+      </div>
+      <button class="btn btn-success mt-3" type="submit">Save Metrics</button>
+    </form>
+  </section>
+
+  <section class="glass-panel totals-panel">
+    <h2>Today's Stats</h2>
+    <div class="mini-stat"><span>Impressions</span><strong>{{ chart_data.totals.impressions }}</strong></div>
+    <div class="mini-stat"><span>Likes</span><strong>{{ chart_data.totals.reactions }}</strong></div>
+    <div class="mini-stat"><span>Comments</span><strong>{{ chart_data.totals.comments }}</strong></div>
+    <div class="mini-stat"><span>Profile Views</span><strong>{{ chart_data.totals.profile_views }}</strong></div>
+  </section>
+
+  <section class="glass-panel"><h2>Engagement Over Time</h2><canvas id="engagementChart" height="135"></canvas></section>
+  <section class="glass-panel"><h2>Impressions vs Likes</h2><canvas id="impressionsLikesChart" height="135"></canvas></section>
+  <section class="glass-panel"><h2>Performance by Topic</h2><canvas id="topicChart" height="135"></canvas></section>
+  <section class="glass-panel"><h2>Performance by Format</h2><canvas id="formatChart" height="135"></canvas></section>
+</div>
+
+<section class="glass-panel mt-4">
+  <h2>Records</h2>
+  <p class="subtle">Formula: engagement rate = (reactions + comments + reposts) / impressions.</p>
+  <div class="table-responsive"><table class="table"><thead><tr><th>Date</th><th>Topic</th><th>Format</th><th>Impressions</th><th>Likes</th><th>Comments</th><th>Rate</th><th>Source</th></tr></thead><tbody>
+  {% for r in records %}<tr><td>{{ r.post_date }}</td><td>{{ r.topic }}</td><td>{{ r.post_format }}</td><td>{{ r.impressions or "" }}</td><td>{{ r.reactions or 0 }}</td><td>{{ r.comments or 0 }}</td><td>{{ r.engagement_rate or "" }}</td><td>{{ r.source or "manual" }}</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>window.linkGrowChartData = {{ chart_data|tojson }};</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

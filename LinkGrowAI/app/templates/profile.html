@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Profile Analyzer</h1>
+<form method="post" class="panel">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% for field, label in [("linkedin_profile_url","LinkedIn Profile URL"),("headline","Headline"),("about","About"),("skills","Skills"),("education","Education"),("projects","Projects"),("experience","Experience"),("target_role","Target Job Role")] %}
+    <label class="form-label">{{ label }}</label>
+    {% if field in ["headline", "target_role", "linkedin_profile_url"] %}
+      <input class="form-control mb-3" name="{{ field }}" value="{{ profile[field] if profile else '' }}">
+    {% else %}
+      <textarea class="form-control mb-3" name="{{ field }}" rows="3">{{ profile[field] if profile else '' }}</textarea>
+    {% endif %}
+  {% endfor %}
+  <button class="btn btn-success" type="submit">Analyze Profile</button>
+</form>
+{% if analysis %}
+<section class="panel mt-4">
+  <h2>Score: {{ analysis.score }}/100</h2>
+  <p class="text-muted">{{ analysis.disclaimer }}</p>
+  <h3>Missing Sections</h3>
+  <p>{{ analysis.missing|join(", ") if analysis.missing else "No major sections missing." }}</p>
+  <h3>Headline Ideas</h3>
+  <ul>{% for item in analysis.headline_suggestions %}<li>{{ item }}</li>{% endfor %}</ul>
+  <h3>Improved About</h3>
+  <p>{{ analysis.improved_about }}</p>
+  <h3>Recommendations</h3>
+  <ul>{% for item in analysis.recommendations %}<li>{{ item }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% endblock %}

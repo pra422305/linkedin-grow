@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Networking Recommendations</h1>
+<form method="post" class="panel">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row g-3">
+    <div class="col-md-4"><label class="form-label">Skills</label><input class="form-control" name="skills" value="{{ skills }}"></div>
+    <div class="col-md-4"><label class="form-label">Target Role</label><input class="form-control" name="target_role" value="{{ target_role }}"></div>
+    <div class="col-md-4"><label class="form-label">Interests</label><input class="form-control" name="interests" value="{{ interests }}"></div>
+  </div>
+  <button class="btn btn-success mt-3" type="submit">Find Matches</button>
+</form>
+<div class="result-grid mt-4">
+  {% for item in recommendations %}
+  <article class="result-card">
+    <h2>{{ item.name }}</h2>
+    <p><strong>{{ item.industry }}</strong> · Score {{ item.score }}</p>
+    <p>{{ item.skills }}</p>
+    <p>{{ item.explanation }}</p>
+    <textarea class="form-control" rows="4">{{ item.message }}</textarea>
+  </article>
+  {% else %}
+  <p class="text-muted">Recommendations use documented sample profiles, not scraped LinkedIn people.</p>
+  {% endfor %}
+</div>
+{% endblock %}

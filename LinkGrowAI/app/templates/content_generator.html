@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Content Generator</h1>
+<form method="post" class="panel">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row g-3">
+    <div class="col-md-6"><label class="form-label">Skills</label><input class="form-control" name="skills"></div>
+    <div class="col-md-6"><label class="form-label">Topic</label><input class="form-control" name="topic" required></div>
+    <div class="col-md-6"><label class="form-label">Target Audience</label><input class="form-control" name="target_audience"></div>
+    <div class="col-md-6"><label class="form-label">Career Goal</label><input class="form-control" name="career_goal"></div>
+    <div class="col-md-4"><label class="form-label">Post Type</label><select class="form-select" name="post_type"><option>Project showcase</option><option>Technical education</option><option>Career advice</option></select></div>
+    <div class="col-md-4"><label class="form-label">Tone</label><select class="form-select" name="tone"><option>Professional</option><option>Friendly</option><option>Reflective</option></select></div>
+    <div class="col-md-4"><label class="form-label">Length</label><select class="form-select" name="desired_length"><option>Medium</option><option>Short</option><option>Long</option></select></div>
+    <div class="col-12"><label class="form-label">Relevant Project or Experience</label><input class="form-control" name="experience"></div>
+  </div>
+  <button class="btn btn-success mt-3" name="action" value="generate" type="submit">Generate Draft</button>
+  {% if draft %}
+  <label class="form-label mt-4">Editable Draft</label>
+  <textarea class="form-control" name="draft_text" rows="10" id="draftText">{{ draft.draft }}</textarea>
+  <button class="btn btn-primary mt-3" name="action" value="save" type="submit">Save Draft</button>
+  <button class="btn btn-outline-secondary mt-3" type="button" data-copy-target="draftText">Copy</button>
+  {% endif %}
+</form>
+<section class="panel mt-4">
+  <h2>Saved Drafts</h2>
+  {% for post in saved %}
+    <details class="saved-item"><summary>{{ post.topic }} · {{ post.created_at.strftime("%Y-%m-%d") }}</summary><pre>{{ post.draft_text }}</pre></details>
+  {% else %}
+    <p class="text-muted">No saved drafts yet.</p>
+  {% endfor %}
+</section>
+{% endblock %}

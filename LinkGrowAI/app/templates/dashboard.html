@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-head">
+  <div>
+    <p class="eyebrow">Hi, {{ current_user.name.split(" ")[0] }}!</p>
+    <h1>Welcome Back</h1>
+  </div>
+  <form class="search-pill" action="{{ url_for('content.content_generator') }}">
+    <span>Search</span>
+    <input name="topic" placeholder="Search topic ideas...">
+  </form>
+</div>
+
+<div class="dashboard-layout">
+  <section class="glass-panel stats-panel">
+    <div class="section-line">
+      <div>
+        <h2>Today's Stats</h2>
+        <p>Post progression summary</p>
+      </div>
+      <a class="btn btn-light btn-sm" href="{{ url_for('analytics.analytics') }}">Export</a>
+    </div>
+    <div class="stat-card-grid">
+      <div class="stat-tile rose"><span>Total Likes</span><strong>{{ summary.total_likes }}</strong><small>From saved analytics</small></div>
+      <div class="stat-tile amber"><span>Total Impressions</span><strong>{{ summary.total_impressions }}</strong><small>Manual or authorized import</small></div>
+      <div class="stat-tile mint"><span>Reposts</span><strong>{{ summary.total_reposts }}</strong><small>Across tracked posts</small></div>
+      <div class="stat-tile violet"><span>New Connections</span><strong>{{ summary.new_connections }}</strong><small>Optional tracked metric</small></div>
+    </div>
+  </section>
+
+  <section class="glass-panel suggestions-panel">
+    <h2>Nappy's AI Suggestions</h2>
+    <div class="suggestion-box">
+      <strong>LinkedIn Connection</strong>
+      <p>{{ "Profile linked: " ~ summary.linkedin_profile_url if summary.linkedin_profile_url else "Add your LinkedIn profile URL during registration or on the Profile page." }}</p>
+    </div>
+    <div class="suggestion-box">
+      <strong>Impressions vs Likes</strong>
+      <p>{% if summary.total_impressions and summary.total_likes %}Compare impressions with reactions before choosing the next content format.{% else %}Add or sync analytics to unlock personalized post suggestions.{% endif %}</p>
+    </div>
+    <a class="btn btn-outline-primary btn-sm ms-auto d-block fit-content" href="{{ url_for('analytics.analytics') }}">Suggesting...</a>
+  </section>
+
+  <section class="glass-panel wide-chart">
+    <h2>Visitor Insights</h2>
+    <canvas id="dashboardVisitorChart" height="110"></canvas>
+  </section>
+
+  <section class="glass-panel">
+    <h2>Post Impression Comparison</h2>
+    <canvas id="dashboardImpressionChart" height="150"></canvas>
+  </section>
+
+  <section class="glass-panel">
+    <h2>Impressions vs Likes</h2>
+    <p class="subtle">Last tracked posts</p>
+    <canvas id="dashboardBarsChart" height="150"></canvas>
+  </section>
+
+  <section class="glass-panel top-posts">
+    <h2>Top Viral Posts</h2>
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead><tr><th>#</th><th>Post Name</th><th>Popularity</th><th>Likes</th></tr></thead>
+        <tbody>
+        {% for post in summary.top_posts %}
+          {% set interactions = (post.reactions or 0) + (post.comments or 0) + (post.reposts or 0) %}
+          <tr>
+            <td>{{ "%02d"|format(loop.index) }}</td>
+            <td>{{ post.topic }}</td>
+            <td><div class="progress slim"><div class="progress-bar" style="width: {{ [interactions, 100]|min }}%"></div></div></td>
+            <td><span class="badge rounded-pill text-bg-light">{{ post.reactions or 0 }}</span></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4">No analytics yet.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="glass-panel">
+    <h2>Target vs Reality</h2>
+    <canvas id="dashboardTargetChart" height="145"></canvas>
+  </section>
+
+  <section class="glass-panel">
+    <h2>Today's Schedules</h2>
+    <div class="schedule-item"><strong>4.30 PM</strong><span>Post: AI workflow automation</span></div>
+    <div class="schedule-item"><strong>5.00 PM</strong><span>Post: My learning as backend engineer</span></div>
+    <div class="schedule-item"><strong>9.45 PM</strong><span>Review analytics and comments</span></div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>window.linkGrowDashboardData = {{ summary.chart_data|tojson }};</script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

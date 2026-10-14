@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.streamlit/secrets.toml
+generated_videos/*
+!generated_videos/.gitkeep
+*.mp4
+*.mov
+*.avi
+*.mkv
+.DS_Store
+Thumbs.db
