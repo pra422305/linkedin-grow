@@ -14,3 +14,4 @@ data/processed/*
 ml/artifacts/*
 !ml/artifacts/.gitkeep
 .pytest_cache/
+.vercel/
