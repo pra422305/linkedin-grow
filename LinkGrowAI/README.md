@@ -41,6 +41,20 @@ LINKEDIN_API_VERSION=202610
 
 The Analytics page includes a `Sync LinkedIn Metrics` button. Without an authorized token, it shows a setup message and keeps the manual analytics form available.
 
+## Vercel Deployment
+
+In Vercel, set the project `Root Directory` to `LinkGrowAI`. The included `vercel.json` routes all requests to `app.py`.
+
+Required environment variables:
+
+```text
+SECRET_KEY=your-random-secret
+DATABASE_URL=your-hosted-database-url
+LINKEDIN_API_VERSION=202610
+```
+
+SQLite is not recommended for production on Vercel. Use a hosted MySQL or PostgreSQL database.
+
 ## Dataset Pipeline
 
 The dataset was inspected on Hugging Face on 2026-10-14. The repository shows Apache-2.0 license, `posts.csv`, and 258 train rows.
